@@ -1,0 +1,55 @@
+# Build Android APK in a containerized environment
+# Usage: docker build -f Dockerfile.android -t blank-runner-android .
+#        docker run --rm -v $(pwd)/android/build/outputs:/outputs blank-runner-android
+
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV ANDROID_HOME=/android-sdk \
+    ANDROID_SDK_ROOT=/android-sdk \
+    PATH=$PATH:/android-sdk/cmdline-tools/latest/bin:/android-sdk/platform-tools \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    openjdk-11-jdk-headless \
+    wget \
+    unzip \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download Android SDK Command-line Tools
+RUN mkdir -p /android-sdk && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O /tmp/cmdline-tools.zip && \
+    unzip -q /tmp/cmdline-tools.zip -d /android-sdk && \
+    mkdir -p /android-sdk/cmdline-tools/latest && \
+    mv /android-sdk/cmdline-tools/* /android-sdk/cmdline-tools/latest/ 2>/dev/null || true && \
+    rm /tmp/cmdline-tools.zip
+
+# Accept Android SDK licenses
+RUN yes | sdkmanager --licenses > /dev/null 2>&1 || true
+
+# Install Android SDK Platform 34
+RUN sdkmanager --no_https "platforms;android-34" \
+    "build-tools;34.0.0" \
+    "platform-tools" \
+    --channel=0
+
+# Download Gradle
+RUN wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip -O /tmp/gradle.zip && \
+    unzip -q /tmp/gradle.zip -d /opt && \
+    rm /tmp/gradle.zip && \
+    ln -s /opt/gradle-8.5 /opt/gradle
+
+ENV PATH=$PATH:/opt/gradle/bin
+
+# Copy project
+WORKDIR /workspace
+COPY . .
+
+# Build APK
+RUN gradle android:assembleDebug
+
+# Output
+CMD ["bash", "-c", "cp -r android/build/outputs /outputs"]
