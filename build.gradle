@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.21'
+    id 'application'
+}
+
+group = 'com.blankrunner'
+version = '1.0-SNAPSHOT'
+
+ext {
+    libgdxVersion = '1.12.1'
+    kotlinVersion = '1.9.21'
+}
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+dependencies {
+    implementation "com.badlogicgames.gdx:gdx:${libgdxVersion}"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:${libgdxVersion}"
+    implementation "com.badlogicgames.gdx:gdx-platform:${libgdxVersion}:natives-desktop"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+}
+
+application {
+    mainClass = 'com.blankrunner.DesktopLauncherKt'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
