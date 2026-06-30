@@ -1,47 +1,81 @@
 package com.blankrunner
 
-class Player(
-    var x: Float = 100f,
-    var y: Float = 150f,
-    val width: Float = 16f,
-    val height: Float = 16f
-) {
-    var velocityX: Float = 0f
-    var velocityY: Float = 0f
-    var isJumping: Boolean = false
+class Player(startX: Int, startY: Int) {
+    var gridX = startX
+        private set
+    var gridY = startY
+        private set
 
-    private val moveSpeed = 150f
-    private val jumpPower = 400f
+    var facing: Direction = Direction.RIGHT
+        private set
 
-    fun update(deltaTime: Float, inputHandler: InputHandler, physics: PhysicsEngine) {
-        handleInput(inputHandler)
+    private var direction: Direction = Direction.NONE
+    private var progress = 0f
+    private val moveInterval = 0.14f
 
-        velocityX = when {
-            inputHandler.isLeftPressed && !inputHandler.isRightPressed -> -moveSpeed
-            inputHandler.isRightPressed && !inputHandler.isLeftPressed -> moveSpeed
-            else -> 0f
-        }
+    val isMoving get() = direction != Direction.NONE
 
-        if (inputHandler.isJumpPressed && !isJumping) {
-            velocityY = jumpPower
-            isJumping = true
-        }
-
-        physics.applyGravity(this, deltaTime)
-
-        x += velocityX * deltaTime
-        y += velocityY * deltaTime
-
-        if (x < 0) x = 0f
-        if (x + width > 800) x = 800f - width
+    fun setStart(x: Int, y: Int) {
+        gridX = x
+        gridY = y
+        direction = Direction.NONE
+        progress = 0f
     }
 
-    private fun handleInput(inputHandler: InputHandler) {
-        inputHandler.update()
+    fun trySetDirection(dir: Direction, level: Level) {
+        facing = dir
+        if (level.isPassable(gridX + dir.dx, gridY + dir.dy)) {
+            direction = dir
+            progress = 0f
+        }
     }
 
-    fun getLeft() = x
-    fun getRight() = x + width
-    fun getTop() = y + height
-    fun getBottom() = y
+    fun update(deltaTime: Float, level: Level) {
+        if (direction == Direction.NONE) return
+
+        progress += deltaTime / moveInterval
+        if (progress >= 1f) {
+            progress -= 1f
+            gridX += direction.dx
+            gridY += direction.dy
+
+            val nextX = gridX + direction.dx
+            val nextY = gridY + direction.dy
+            if (!level.isPassable(nextX, nextY)) {
+                direction = Direction.NONE
+                progress = 0f
+            }
+        }
+    }
+
+    fun visualX(): Float = gridX - direction.dx * (1f - progress)
+    fun visualY(): Float = gridY - direction.dy * (1f - progress)
+
+    fun fireIce(level: Level) {
+        val fx = gridX + facing.dx
+        val fy = gridY + facing.dy
+        if (!level.isInBounds(fx, fy)) return
+
+        when (level.tileAt(fx, fy)) {
+            TileType.WALL -> return
+            TileType.ICE -> {
+                var x = fx
+                var y = fy
+                while (level.tileAt(x, y) == TileType.ICE) {
+                    level.setTile(x, y, TileType.EMPTY)
+                    x += facing.dx
+                    y += facing.dy
+                }
+            }
+            TileType.EMPTY -> {
+                var x = fx
+                var y = fy
+                while (level.isInBounds(x, y) && level.tileAt(x, y) == TileType.EMPTY) {
+                    level.setTile(x, y, TileType.ICE)
+                    x += facing.dx
+                    y += facing.dy
+                }
+            }
+        }
+    }
 }
