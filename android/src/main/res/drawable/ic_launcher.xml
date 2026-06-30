@@ -5,17 +5,23 @@
     android:viewportWidth="48"
     android:viewportHeight="48">
 
+    <!-- icy background tile -->
     <path
-        android:fillColor="#9ED2F5"
+        android:fillColor="#7FC1E8"
         android:pathData="M8,2 H40 A6,6 0 0,1 46,8 V40 A6,6 0 0,1 40,46 H8 A6,6 0 0,1 2,40 V8 A6,6 0 0,1 8,2 Z"/>
 
-    <path
-        android:strokeColor="#2E5A80"
-        android:strokeWidth="2.6"
-        android:strokeLineCap="round"
-        android:pathData="M24,10 L24,38 M13,16 L35,32 M35,16 L13,32"/>
+    <!-- ears -->
+    <path android:fillColor="#F0F4FB" android:pathData="M13,32 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path android:fillColor="#F0F4FB" android:pathData="M35,32 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path android:fillColor="#9ED2F5" android:pathData="M13,32 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0"/>
+    <path android:fillColor="#9ED2F5" android:pathData="M35,32 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0"/>
 
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M24,18 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"/>
+    <!-- head -->
+    <path android:fillColor="#F8F9FD" android:pathData="M24,22 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0"/>
+    <path android:fillColor="#9ED2F5" android:pathData="M24,20.5 m-9.5,0 a9.5,9.5 0 1,0 19,0 a9.5,9.5 0 1,0 -19,0"/>
+
+    <!-- face -->
+    <path android:fillColor="#22384A" android:pathData="M19,18 m-2.3,0 a2.3,2.3 0 1,0 4.6,0 a2.3,2.3 0 1,0 -4.6,0"/>
+    <path android:fillColor="#22384A" android:pathData="M29,18 m-2.3,0 a2.3,2.3 0 1,0 4.6,0 a2.3,2.3 0 1,0 -4.6,0"/>
+    <path android:fillColor="#22384A" android:pathData="M24,26 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
 </vector>
