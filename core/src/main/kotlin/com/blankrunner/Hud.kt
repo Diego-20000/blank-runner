@@ -147,6 +147,7 @@ class Hud {
             GamePhase.TITLE -> "FROSTY MAZE" to "Swipe to move  -  button to throw ice\nCollect all the fruit, dodge the creatures\n\nTap to play"
             GamePhase.LEVEL_COMPLETE -> "LEVEL $levelNumber CLEARED" to "Tap to continue"
             GamePhase.GAME_OVER -> "TIME'S UP" to "Tap to try this level again"
+            GamePhase.CAUGHT -> "CAUGHT!" to "Tap to try this level again"
             GamePhase.VICTORY -> "YOU WIN!" to "Final score $score\n\nTap to return to title"
             GamePhase.PLAYING -> return
         }

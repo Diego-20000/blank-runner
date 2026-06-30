@@ -65,6 +65,7 @@ class GameScreen : Screen, GameInputListener {
             }
             GamePhase.LEVEL_COMPLETE -> loadLevel(currentLevelIndex + 1)
             GamePhase.GAME_OVER -> retryLevel()
+            GamePhase.CAUGHT -> retryLevel()
             GamePhase.VICTORY -> phase = GamePhase.TITLE
             GamePhase.PLAYING -> {}
         }
@@ -130,7 +131,7 @@ class GameScreen : Screen, GameInputListener {
             return
         }
 
-        if (isCaught()) retryLevel()
+        if (isCaught()) phase = GamePhase.CAUGHT
     }
 
     /** Direct overlap, plus the swap case where player and enemy trade cells in one frame. */

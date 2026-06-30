@@ -5,5 +5,6 @@ enum class GamePhase {
     PLAYING,
     LEVEL_COMPLETE,
     GAME_OVER,
+    CAUGHT,
     VICTORY
 }
