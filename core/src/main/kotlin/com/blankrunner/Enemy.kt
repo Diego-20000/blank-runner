@@ -11,10 +11,27 @@ enum class EnemyType {
 
 class Enemy(
     val type: EnemyType,
-    var gridX: Int,
-    var gridY: Int,
+    startX: Int,
+    startY: Int,
     initialDirection: Direction
 ) {
+    var gridX = startX
+        private set
+    var gridY = startY
+        private set
+
+    /** Cell occupied at the start of the current frame (for swap-collision checks). */
+    var prevX = startX
+        private set
+    var prevY = startY
+        private set
+
+    /** Smoothly interpolated render position in tile units. */
+    var renderX = startX.toFloat()
+        private set
+    var renderY = startY.toFloat()
+        private set
+
     private var direction: Direction = initialDirection
     private var moveTimer = 0f
 
@@ -22,20 +39,29 @@ class Enemy(
     private var phaseTimer = 0f
 
     companion object {
-        private val ALL_DIRECTIONS = listOf(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT)
-        private const val WANDER_INTERVAL = 0.45f
-        private const val CHASE_INTERVAL = 0.18f
+        private val ALL_DIRECTIONS =
+            listOf(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT)
+        private const val WANDER_INTERVAL = 0.42f
+        private const val CHASE_INTERVAL = 0.2f
         private const val PHASE_DURATION = 3f
-        private const val CRUSH_PAUSE = 0.2f
+        private const val CRUSH_PAUSE = 0.25f
+        private const val RENDER_SMOOTH = 14f
     }
 
     fun update(deltaTime: Float, level: Level, playerX: Int, playerY: Int) {
+        prevX = gridX
+        prevY = gridY
+
         when (type) {
             EnemyType.PATROL -> updatePatrol(deltaTime, level)
             EnemyType.WANDERER -> updateWanderer(deltaTime, level)
             EnemyType.ICE_CRUSHER -> updateIceCrusher(deltaTime, level)
             EnemyType.CHASER -> updateChaser(deltaTime, level, playerX, playerY)
         }
+
+        val t = (deltaTime * RENDER_SMOOTH).coerceAtMost(1f)
+        renderX += (gridX - renderX) * t
+        renderY += (gridY - renderY) * t
     }
 
     private fun canEnter(level: Level, x: Int, y: Int) = level.isPassable(x, y)
@@ -51,7 +77,7 @@ class Enemy(
             gridX = nx
             gridY = ny
         } else {
-            direction = opposite(direction)
+            direction = direction.opposite()
         }
     }
 
@@ -92,8 +118,10 @@ class Enemy(
                 moveTimer = -CRUSH_PAUSE
             }
             TileType.WALL -> {
-                val options = ALL_DIRECTIONS.filter { level.tileAt(gridX + it.dx, gridY + it.dy) != TileType.WALL }
-                direction = if (options.isNotEmpty()) options.random() else opposite(direction)
+                val options = ALL_DIRECTIONS.filter {
+                    level.tileAt(gridX + it.dx, gridY + it.dy) != TileType.WALL
+                }
+                direction = if (options.isNotEmpty()) options.random() else direction.opposite()
             }
         }
     }
@@ -114,9 +142,15 @@ class Enemy(
             val dx = playerX - gridX
             val dy = playerY - gridY
             val preferred = if (kotlin.math.abs(dx) > kotlin.math.abs(dy)) {
-                listOf(if (dx > 0) Direction.RIGHT else Direction.LEFT, if (dy > 0) Direction.UP else Direction.DOWN)
+                listOf(
+                    if (dx > 0) Direction.RIGHT else Direction.LEFT,
+                    if (dy > 0) Direction.UP else Direction.DOWN
+                )
             } else {
-                listOf(if (dy > 0) Direction.UP else Direction.DOWN, if (dx > 0) Direction.RIGHT else Direction.LEFT)
+                listOf(
+                    if (dy > 0) Direction.UP else Direction.DOWN,
+                    if (dx > 0) Direction.RIGHT else Direction.LEFT
+                )
             }
             for (dir in preferred) {
                 val nx = gridX + dir.dx
@@ -135,7 +169,8 @@ class Enemy(
                 gridX = nx
                 gridY = ny
             } else {
-                val options = ALL_DIRECTIONS.filter { canEnter(level, gridX + it.dx, gridY + it.dy) }
+                val options =
+                    ALL_DIRECTIONS.filter { canEnter(level, gridX + it.dx, gridY + it.dy) }
                 if (options.isNotEmpty()) {
                     direction = options.random()
                     gridX += direction.dx
@@ -143,13 +178,5 @@ class Enemy(
                 }
             }
         }
-    }
-
-    private fun opposite(dir: Direction): Direction = when (dir) {
-        Direction.UP -> Direction.DOWN
-        Direction.DOWN -> Direction.UP
-        Direction.LEFT -> Direction.RIGHT
-        Direction.RIGHT -> Direction.LEFT
-        Direction.NONE -> Direction.NONE
     }
 }

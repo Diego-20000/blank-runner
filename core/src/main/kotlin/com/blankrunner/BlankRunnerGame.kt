@@ -1,19 +1,22 @@
 package com.blankrunner
 
 import com.badlogic.gdx.ApplicationAdapter
-import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.Gdx
 
 class BlankRunnerGame : ApplicationAdapter() {
     private lateinit var gameScreen: GameScreen
 
     override fun create() {
         gameScreen = GameScreen()
+        gameScreen.show()
+    }
+
+    override fun resize(width: Int, height: Int) {
+        gameScreen.resize(width, height)
     }
 
     override fun render() {
-        com.badlogic.gdx.Gdx.gl.glClearColor(1f, 1f, 1f, 1f)
-        com.badlogic.gdx.Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        gameScreen.render(com.badlogic.gdx.Gdx.graphics.deltaTime)
+        gameScreen.render(Gdx.graphics.deltaTime)
     }
 
     override fun dispose() {

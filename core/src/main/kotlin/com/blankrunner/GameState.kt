@@ -2,39 +2,38 @@ package com.blankrunner
 
 class GameState {
     var score = 0
+    var timeRemaining = LEVEL_TIME
         private set
-    var timeRemaining = 120f
-        private set
-    var isGameOver = false
-        private set
-    var isLevelComplete = false
+    var timedOut = false
         private set
 
-    fun update(deltaTime: Float) {
-        if (isGameOver || isLevelComplete) return
+    companion object {
+        const val LEVEL_TIME = 120f
+    }
+
+    /** Advances the countdown. Returns true the moment time runs out. */
+    fun tick(deltaTime: Float): Boolean {
+        if (timedOut) return false
         timeRemaining -= deltaTime
         if (timeRemaining <= 0f) {
             timeRemaining = 0f
-            isGameOver = true
+            timedOut = true
+            return true
         }
+        return false
     }
 
     fun addScore(points: Int) {
         score += points
     }
 
-    fun completeLevel() {
-        isLevelComplete = true
+    fun startLevelTimer() {
+        timeRemaining = LEVEL_TIME
+        timedOut = false
     }
 
-    fun fail() {
-        isGameOver = true
-    }
-
-    fun reset() {
+    fun fullReset() {
         score = 0
-        timeRemaining = 120f
-        isGameOver = false
-        isLevelComplete = false
+        startLevelTimer()
     }
 }

@@ -7,11 +7,12 @@ import com.badlogic.gdx.math.Rectangle
 interface GameInputListener {
     fun onSwipe(direction: Direction)
     fun onFireButton()
+    fun onTap()
 }
 
 /**
  * Touch coordinates are converted from screen space (y-down, origin top-left)
- * to the game's y-up world space so they line up with [fireButtonBounds].
+ * to the game's y-up coordinate space so they line up with [fireButtonBounds].
  */
 class SwipeInputProcessor(
     private val listener: GameInputListener,
@@ -21,7 +22,7 @@ class SwipeInputProcessor(
     private var startX = 0f
     private var startY = 0f
     private var startedOnButton = false
-    private val swipeThreshold = 40f
+    private val swipeThreshold = 38f
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         startX = screenX.toFloat()
@@ -44,6 +45,7 @@ class SwipeInputProcessor(
         val dx = endX - startX
         val dy = endY - startY
         if (kotlin.math.abs(dx) < swipeThreshold && kotlin.math.abs(dy) < swipeThreshold) {
+            listener.onTap()
             return true
         }
 
